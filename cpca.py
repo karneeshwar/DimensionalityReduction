@@ -98,8 +98,8 @@ if __name__ == '__main__':
             print('File not found')
 
     # Inserting an outlier into the training data
-    outlier = numpython.matrix('-36356356356, 6363634, 46436, -8984508240582082')
-    training_data = numpython.vstack((training_data, outlier))
+    # outlier = numpython.matrix('-36356356356, 6363634, 46436, -8984508240582082')
+    # training_data = numpython.vstack((training_data, outlier))
 
     # Call the required dimensionality reduction function
     vectors = centered_PCA(training_data.T)
