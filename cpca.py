@@ -74,6 +74,7 @@ def approximation_quality(v, matrix):
 
     # Compute the quality and return
     B_matrix = matrix_avg * matrix_avg.T
+    B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
     score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2
@@ -91,8 +92,8 @@ if __name__ == '__main__':
     # Exception handling for input data file
     while 1:
         try:
-            training_data = numpython.asmatrix(numpython.genfromtxt(system.argv[1], delimiter=','))
-            testing_data = numpython.asmatrix(numpython.genfromtxt(system.argv[2], delimiter=','))
+            training_data = numpython.asmatrix(numpython.genfromtxt(system.argv[1], delimiter=',', autostrip=True))
+            testing_data = numpython.asmatrix(numpython.genfromtxt(system.argv[2], delimiter=',', autostrip=True))
             break
         except IOError:
             print('File not found')
