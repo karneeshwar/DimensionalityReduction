@@ -5,10 +5,10 @@ import sys as system
 import numpy as numpython
 
 
-# Function: centered_PCA, Principal Component Analysis with mean subtraction
+# Function: norm_centered_PCA, Normalized Principal Component Analysis with mean subtraction
 # Parameters: matrix = input training data, reduce_to = number of dimensions to reduce to (default = 2)
-#   To find the top 2 eigen vectors and reduce the dimensions of given data to 2 using PCA with mean subtraction
-def centered_PCA(matrix, reduce_to=2):
+#   To find the top 2 eigen vectors using normalized PCA with mean subtraction to use for dimensionality reduction
+def norm_centered_PCA(matrix, reduce_to=2):
     # Compute average
     avg = numpython.mean(matrix, axis=1)
 
@@ -36,13 +36,13 @@ def centered_PCA(matrix, reduce_to=2):
     # Find the top 2 eigen vectors
     reduced_eigen_vectors = eigen_vectors[:, :reduce_to]
 
-    # return the reduced vectors v1 and v2 of size (1, 150) each and the reduced_matrix with just 2 rows
+    # return the reduced vectors
     return reduced_eigen_vectors
 
 
 # Function: reduce_data
-# Parameters: v = reduced eigen vectors, matrix = input testing data
-#   To reduce the input testing_data using the top 2 selected eigen vectors from the training_data
+# Parameters: v = reduced vectors, matrix = input testing data
+#   To reduce the input testing_data using the top 2 selected vectors from the training_data
 def reduce_data(v, matrix):
     # Compute average and subtract it from the input matrix
     avg = numpython.mean(matrix, axis=1)
@@ -53,8 +53,8 @@ def reduce_data(v, matrix):
 
 
 # Function: orthonormalize_vectors
-# Parameters: v = eigen vectors
-#   To orthonormalize the 2 eigen vectors to each other using modified Gram-Schmidt
+# Parameters: v = vectors
+#   To orthonormalize the 2 vectors to each other using modified Gram-Schmidt
 def orthonormalize_vectors(v):
     # Extracting vector1
     v1 = v[:, 0]
@@ -74,8 +74,8 @@ def orthonormalize_vectors(v):
 
 
 # Function: approximation_quality
-# Parameters: v = Ortho-normalized eigen vectors, matrix = testing data
-#   To orthonormalize the 2 eigen vectors to each other using modified Gram-Schmidt
+# Parameters: v = Ortho-normalized vectors, matrix = testing data
+#   To compute the approximation quality of the dimensionality reduction method
 def approximation_quality(v, matrix):
     # Compute average and subtract it from the input matrix
     avg = numpython.mean(matrix, axis=1)
@@ -112,10 +112,13 @@ if __name__ == '__main__':
     # training_data = numpython.vstack((training_data, outlier))
 
     # Call the required dimensionality reduction function
-    vectors = centered_PCA(training_data.T)
+    vectors = norm_centered_PCA(training_data.T)
+
+    # Call the function to ortho-normalize the vectors
+    on_vectors = orthonormalize_vectors(vectors)
 
     # Call the function to compute the final reduced data
-    reduced_data = reduce_data(vectors, testing_data.T)
+    reduced_data = reduce_data(on_vectors, testing_data.T)
 
     # Exception handling for input data file
     while 1:
@@ -124,9 +127,6 @@ if __name__ == '__main__':
             break
         except IOError:
             print('File not written')
-
-    # Call the function to ortho-normalize the eigen vectors
-    on_vectors = orthonormalize_vectors(vectors)
 
     # Call the function to find the quality of the algorithm
     quality = approximation_quality(on_vectors, testing_data.T)

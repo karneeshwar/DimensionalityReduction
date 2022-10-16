@@ -1,46 +1,41 @@
 # import statements:
 #   sys for defining and retrieving program arguments
 #   numpy to import and perform matrix operations with given data
+#   scipy to perform QRP calculation
 import sys as system
 import numpy as numpython
+from scipy import linalg
 
 
-# Function: centered_PCA, Principal Component Analysis with mean subtraction
+# Function: pivoted_QR, Pivoted QR factorization
 # Parameters: matrix = input training data, reduce_to = number of dimensions to reduce to (default = 2)
-#   To find the top 2 eigen vectors using PCA with mean subtraction to use for dimensionality reduction
-def centered_PCA(matrix, reduce_to=2):
-    # Compute average and subtract it from the input matrix
-    avg = numpython.mean(matrix, axis=1)
-    matrix_avg = matrix - avg
+#   To find the top 2 vectors using QR factorization to use for dimensionality reduction
+def pivoted_QR(matrix, reduce_to=2):
+    # Compute Q,R and P of the input matrix
+    _, _, priority_vector = linalg.qr(matrix, pivoting=True)
 
-    # Compute the symmetric matrix B for PCA
-    B_matrix = matrix_avg * matrix_avg.T
+    # Reduce the priority_vector to the length of value of 'reduce_to'
+    priority_vector = priority_vector[0:reduce_to]
 
-    # Compute eigen values and vectors of the symmetric matrix B
-    eigen_values, eigen_vectors = numpython.linalg.eigh(B_matrix)
+    # Create an empty matrix to hold the selected vectors
+    rows, columns = matrix.shape
+    reduced_vectors = numpython.asmatrix(numpython.empty([rows, reduce_to]))
 
-    # sort the eigen values and vectors in decreasing order of the eigen values
-    pivot = numpython.argsort(eigen_values)[::-1]
-    eigen_values = eigen_values[pivot]
-    eigen_vectors = eigen_vectors[:, pivot]
-
-    # Find the top 2 eigen vectors
-    reduced_eigen_vectors = eigen_vectors[:, :reduce_to]
+    # Copy the prioritized columns from the input matrix to the new empty matrix we created
+    for each_column in range(len(priority_vector)):
+        for each_row in range(rows):
+            reduced_vectors[each_row, each_column] = matrix[each_row, priority_vector[each_column]]
 
     # return the reduced vectors
-    return reduced_eigen_vectors
+    return reduced_vectors
 
 
 # Function: reduce_data
 # Parameters: v = reduced vectors, matrix = input testing data
 #   To reduce the input testing_data using the top 2 selected vectors from the training_data
 def reduce_data(v, matrix):
-    # Compute average and subtract it from the input matrix
-    avg = numpython.mean(matrix, axis=1)
-    matrix_avg = matrix - avg
-
-    # return the reduced data
-    return v.T * matrix_avg
+    # Return the reduced data
+    return v.T * matrix
 
 
 # Function: orthonormalize_vectors
@@ -65,15 +60,11 @@ def orthonormalize_vectors(v):
 
 
 # Function: approximation_quality
-# Parameters: v = Ortho-normalized vectors, matrix = testing data
+# Parameters: v = Ortho-normalized vectors, matrix = input data
 #   To compute the approximation quality of the dimensionality reduction method
 def approximation_quality(v, matrix):
-    # Compute average and subtract it from the input matrix
-    avg = numpython.mean(matrix, axis=1)
-    matrix_avg = matrix - avg
-
     # Compute the quality and return
-    B_matrix = matrix_avg * matrix_avg.T
+    B_matrix = matrix * matrix.T
     B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
@@ -103,7 +94,7 @@ if __name__ == '__main__':
     # training_data = numpython.vstack((training_data, outlier))
 
     # Call the required dimensionality reduction function
-    vectors = centered_PCA(training_data.T)
+    vectors = pivoted_QR(training_data.T)
 
     # Call the function to ortho-normalize the vectors
     on_vectors = orthonormalize_vectors(vectors)
