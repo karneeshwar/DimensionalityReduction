@@ -1,0 +1,24 @@
+Ranking based on iris.csv
+
+  rank  |      file      |      quality
+--------------------------------------------
+   1    |     upca.py    |  9520.63366898787
+   2    |     cpca.py    |  9520.97116665220
+   3    |     ncpca.py   |  9410.05704200470
+   4    |     qrp.py     |  9511.17053184080
+   5    |     qrppca.py  |  9516.55257270695
+   6    |     fkv.py     |
+   7    |     fkvpca.py  |  
+
+
+Ranking based on wine.csv
+
+  rank  |      file      |      quality
+----------------------------------------------
+   1    |     upca.py    |  118763185.14935538
+   2    |     cpca.py    |  118765063.88356847
+   3    |     ncpca.py   |  101193816.2830416
+   4    |     qrp.py     |  118749488.55519482
+   5    |     qrppca.py  |  118764675.99784061
+   6    |     fkv.py     |
+   7    |     fkvpca.py  |  

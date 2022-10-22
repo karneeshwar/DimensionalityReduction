@@ -88,17 +88,19 @@ def orthonormalize_vectors(v):
 # Function: approximation_quality
 # Parameters: v = Ortho-normalized vectors, matrix = input data
 #   To compute the approximation quality of the dimensionality reduction method
-def approximation_quality(v, matrix):
+def approximation_quality(v, k_matrix, matrix):
     # Compute average and subtract it from the input matrix
+    avg_tilda = numpython.mean(k_matrix, axis=1)
     avg = numpython.mean(matrix, axis=1)
-    matrix_avg = matrix - avg
+    matrix_avg = matrix - avg_tilda
+    _, col = matrix.shape
 
     # Compute the quality and return
     B_matrix = matrix_avg * matrix_avg.T
-    B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
+    # B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
-    score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2
+    score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2 + 2*col*avg.T*avg_tilda - col*(numpython.linalg.norm(avg_tilda)**2)
     return score
 
 
@@ -150,5 +152,5 @@ if __name__ == '__main__':
             print('File not written')
 
     # Call the function to find the quality of the algorithm
-    quality = approximation_quality(on_vectors, testing_data.T)
+    quality = approximation_quality(on_vectors, k_data, testing_data.T)
     print(quality.item())

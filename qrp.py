@@ -65,7 +65,7 @@ def orthonormalize_vectors(v):
 def approximation_quality(v, matrix):
     # Compute the quality and return
     B_matrix = matrix * matrix.T
-    B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
+    # B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
     score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2
