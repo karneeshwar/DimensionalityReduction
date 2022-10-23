@@ -99,7 +99,7 @@ if __name__ == '__main__':
     # Call the function to compute the final reduced data
     reduced_data = reduce_data(on_vectors, testing_data.T)
 
-    # Exception handling for input data file
+    # Exception handling for output data file
     while 1:
         try:
             numpython.savetxt(system.argv[3], reduced_data.T, delimiter=',')

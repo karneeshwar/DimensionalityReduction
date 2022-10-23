@@ -2,23 +2,41 @@ Ranking based on iris.csv
 
   rank  |      file      |      quality
 --------------------------------------------
-   1    |     upca.py    |  9520.63366898787
-   2    |     cpca.py    |  9520.97116665220
-   3    |     ncpca.py   |  9410.05704200470
+   1    |     cpca.py    |  9520.97116665220
+   2    |     upca.py    |  9520.63366898787
+   3    |     qrppca.py  |  9516.55257270695 (k = 10)
    4    |     qrp.py     |  9511.17053184080
-   5    |     qrppca.py  |  9516.55257270695
-   6    |     fkv.py     |
-   7    |     fkvpca.py  |  
+   5    |     fkvpca.py  |  9492.99012803146 (k = 10, seed = 1000)
+   6    |     fkv.py     |	9448.37186505311 (seed = 1000)
+   7    |     ncpca.py   |  9410.05704200470
+
 
 
 Ranking based on wine.csv
 
   rank  |      file      |      quality
 ----------------------------------------------
-   1    |     upca.py    |  118763185.14935538
-   2    |     cpca.py    |  118765063.88356847
-   3    |     ncpca.py   |  101193816.2830416
-   4    |     qrp.py     |  118749488.55519482
-   5    |     qrppca.py  |  118764675.99784061
-   6    |     fkv.py     |
-   7    |     fkvpca.py  |  
+   1    |     cpca.py    |  118765063.88356847
+   2    |     qrppca.py  |  118764675.99784061 (k = 10)
+   3    |     upca.py    |  118763185.14935538
+   4    |     fkvpca.py  |  118761219.14733803 (k = 10, seed = 1000)
+   5    |     fkv.py     |  118754095.7682037  (seed = 1000)
+   6    |     qrp.py     |  118749488.55519482
+   7    |     ncpca.py   |  101193816.2830416
+
+
+
+Parameters for qrppca.py:
+	- k was choosen to be 10
+	- 10 data points were selected from the input using QRP
+	- These 10 data points were used to do dimensionality reduction with 2 eigen vectors found by centered PCA
+
+Parameters for fkv.py:
+	- random seed was choosen to be 1000
+	- 2 data points were selected at random with replacement with probablity proportional to norm square of data points
+	- These 2 data points were orthonormalized and used for dimensionality reduction directly
+
+Parameters for fkvpca.py:
+	- random seed was choosen tobe 1000 and k was choosen to be 10
+	- 10 data points were selected at random with replacement with probablity proportional to norm square of data points
+	- These 10 data points were used to do dimensionality reduction with 2 eigen vectors found by centered PCA

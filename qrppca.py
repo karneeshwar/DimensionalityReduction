@@ -34,7 +34,7 @@ def centered_PCA(matrix, reduce_to=2):
 
 
 # Function: pivoted_QR, Pivoted QR factorization
-# Parameters: matrix = input training data, reduce_to = number of dimensions to reduce to (default = 2)
+# Parameters: matrix = input training data, k = number of columns to select
 #   To find the top k vectors using QR factorization to use for dimensionality reduction
 def pivoted_QR(matrix, k):
     # Compute Q,R and P of the input matrix
@@ -86,7 +86,7 @@ def orthonormalize_vectors(v):
 
 
 # Function: approximation_quality
-# Parameters: v = Ortho-normalized vectors, matrix = input data
+# Parameters: v = Ortho-normalized vectors, k_matrix = matrix with k rows, matrix = input data
 #   To compute the approximation quality of the dimensionality reduction method
 def approximation_quality(v, k_matrix, matrix):
     # Compute average and subtract it from the input matrix
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     # Call the function to compute the final reduced data
     reduced_data = reduce_data(on_vectors, testing_data.T)
 
-    # Exception handling for input data file
+    # Exception handling for output data file
     while 1:
         try:
             numpython.savetxt(system.argv[3], reduced_data.T, delimiter=',')
