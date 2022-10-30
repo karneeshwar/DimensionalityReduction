@@ -1,0 +1,34 @@
+Experiment 1: Running fkv.py 20 times
+
+random seed = 777
+  minimum-quality  | average-quality |  maximum-quality
+------------------------------------ - ------------------
+ 9039.211284741486 | 9368.9743946235 | 9519.869985369462
+
+
+
+Experiment 2: Running fkvpca.py 20 times for 10 different values of k
+
+random seed = 777
+  k   |  minimum-quality  |  average-quality  |  maximum-quality
+------------------------------------------------------------------
+  10  | 9372.518203698415 | 9500.832583543646 | 9519.300566507862
+  20  | 9436.305089009244 | 9512.163737256822 | 9519.69784599843
+  30  | 9514.606431842743 | 9518.85957055674  | 9520.784125442982
+  40  | 9516.44897561966  | 9519.664102691873 | 9520.675686255212
+  50  | 9517.1833627917   | 9519.76495429691  | 9520.7360028388
+  60  | 9519.037868398598 | 9520.135752622584 | 9520.824362094812
+  70  | 9518.937267437947 | 9520.112703831594 | 9520.759422427916
+  80  | 9519.111389250205 | 9520.428481655512 | 9520.815695184832
+  90  | 9519.249527607444 | 9520.434219915629 | 9520.84721325185
+  100 | 9519.179237726546 | 9520.372120804039 | 9520.803098538092
+
+qrp vs fkv:
+ - When using 777 as random seed in fkv.py, it took 10 random runs to get a quality better than qrp.py
+ - On average, the quality of fkv.py is less which suggests that randomly selecting samples is way less accurate
+ - In qrp.py, the data is selected directly based on the norm of each sample which prioritizes important samples without randomness
+ - The same scenario can be seen when these algorithms are coupled with PCA, qrppca.py gives better quality than fkvpca.py
+ - fkvpca.py gives comparable results only when the value of k is considerably high
+ - k being high to get better quality in fkvpca.py is almost equivalent to working with full actual data
+ - Therefore, our experiments suggests that qrp is better than fkv
+

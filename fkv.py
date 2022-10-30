@@ -98,6 +98,7 @@ if __name__ == '__main__':
     # training_data = numpython.vstack((training_data, outlier))
 
     random_iterations = 1
+    # quality_20 = []
     while random_iterations > 0:
         # Call the required dimensionality reduction function
         vectors = fkv(training_data.T)
@@ -118,5 +119,10 @@ if __name__ == '__main__':
 
         # Call the function to find the quality of the algorithm
         quality = approximation_quality(on_vectors, testing_data.T)
+        # quality_20.append(quality.item())
         print(quality.item())
         random_iterations -= 1
+
+    # print('min', min(quality_20))
+    # print('avg', sum(quality_20) / len(quality_20))
+    # print('max', max(quality_20))

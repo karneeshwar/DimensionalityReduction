@@ -52,7 +52,7 @@ def fkv(matrix, k):
     prob = numpython.empty(columns)
     sum_norm_sq = 0
     for i in range(columns):
-        prob[i] = numpython.linalg.norm(matrix[:, i])**2
+        prob[i] = numpython.linalg.norm(matrix[:, i]) ** 2
         sum_norm_sq += prob[i]
     prob /= sum_norm_sq
 
@@ -94,11 +94,11 @@ def orthonormalize_vectors(v):
     v2 = v[:, 1]
 
     # Ortho-normalize vector1
-    ortho_normV1 = v1/numpython.linalg.norm(v1)
+    ortho_normV1 = v1 / numpython.linalg.norm(v1)
 
     # Ortho-normalize vector2
-    tilda_V2 = v2 - ((ortho_normV1.T*v2).item())*ortho_normV1
-    ortho_normV2 = tilda_V2/numpython.linalg.norm(tilda_V2)
+    tilda_V2 = v2 - ((ortho_normV1.T * v2).item()) * ortho_normV1
+    ortho_normV2 = tilda_V2 / numpython.linalg.norm(tilda_V2)
 
     # Return the final vectors as a single np matrix
     ortho_normV = numpython.hstack((ortho_normV1, ortho_normV2))
@@ -118,7 +118,8 @@ def approximation_quality(v, matrix, avg_tilda):
     B_matrix = matrix_avg * matrix_avg.T
     v1 = v[:, 0]
     v2 = v[:, 1]
-    score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2 + 2*col*avg.T*avg_tilda - col*(numpython.linalg.norm(avg_tilda)**2)
+    score = v1.T * B_matrix * v1 + v2.T * B_matrix * v2 + 2 * col * avg.T * avg_tilda - col * (
+                numpython.linalg.norm(avg_tilda) ** 2)
     return score
 
 
@@ -146,29 +147,40 @@ if __name__ == '__main__':
     # outlier = numpython.matrix('-3, 6, 4, -8')
     # training_data = numpython.vstack((training_data, outlier))
 
-    random_iterations = 1
-    while random_iterations > 0:
-        # Call fkv function to retrieve top k columns for dimensionality reduction
-        k_data, probability = fkv(training_data.T, int(system.argv[4]))
+    k_value = int(system.argv[4])
+    for k_10 in range(1):  # To test for randamization.txt
+        random_iterations = 1
+        # quality_20 = []
+        while random_iterations > 0:
+            # Call fkv function to retrieve top k columns for dimensionality reduction
+            k_data, probability = fkv(training_data.T, k_value)
 
-        # Call the required dimensionality reduction function
-        vectors, average_tilda = centered_PCA(k_data, probability)
+            # Call the required dimensionality reduction function
+            vectors, average_tilda = centered_PCA(k_data, probability)
 
-        # Call the function to compute the final reduced data
-        reduced_data = reduce_data(vectors, testing_data.T)
+            # Call the function to compute the final reduced data
+            reduced_data = reduce_data(vectors, testing_data.T)
 
-        # Call the function to ortho-normalize the vectors
-        on_vectors = orthonormalize_vectors(vectors)
+            # Call the function to ortho-normalize the vectors
+            on_vectors = orthonormalize_vectors(vectors)
 
-        # Exception handling for output data file
-        while 1:
-            try:
-                numpython.savetxt(system.argv[3], reduced_data.T, delimiter=',')
-                break
-            except IOError:
-                print('File not written')
+            # Exception handling for output data file
+            while 1:
+                try:
+                    numpython.savetxt(system.argv[3], reduced_data.T, delimiter=',')
+                    break
+                except IOError:
+                    print('File not written')
 
-        # Call the function to find the quality of the algorithm
-        quality = approximation_quality(on_vectors, testing_data.T, average_tilda)
-        print(quality.item())
-        random_iterations -= 1
+            # Call the function to find the quality of the algorithm
+            quality = approximation_quality(on_vectors, testing_data.T, average_tilda)
+            # quality_20.append(quality.item())
+            print(quality.item())
+            random_iterations -= 1
+
+        # To test for randamization.txt
+        # print('k ', k_value)
+        # print('min', min(quality_20))
+        # print('avg', sum(quality_20) / len(quality_20))
+        # print('max', max(quality_20))
+        # k_value += 10

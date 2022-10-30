@@ -1,0 +1,40 @@
+Experiment to test the outlier sensitivity of each program on iris.csv dataset
+The outlier can be added to the iris dataset through variable 'outlier' in each program for training purpose
+
+The following table is to analyze the effect of the same outlier in each program:
+ - The most affected program is qrp.py
+ - The least affected program is ncpca.py
+
+  program name  |  no outlier quality  |   outlier quality    |          x
+-------------------------------------------------------------------------------------
+    upca.py     |   9520.63366898787   |   9497.18929494373   |  ('15, -5, 14, 0')
+    cpca.py     |   9520.97116665220   |   9497.65600055068   |  ('15, -5, 14, 0')
+    ncpca.py    |   9520.63428083707   |   9520.63450786256   |  ('15, -5, 14, 0')
+    qrp.py      |   9511.17053184080   |   9190.90432807560   |  ('15, -5, 14, 0')
+    qrppca.py   |   9516.55257270695   |   9451.01520944838   |  ('15, -5, 14, 0')      (k = 10)
+    fkv.py      |   9220.73566017590   |   9266.70180546850   |  ('15, -5, 14, 0')      (seed = 777)
+    fkvpca.py   |   9430.24928057890   |   9441.72326454522   |  ('15, -5, 14, 0')      (k = 10, seed = 777)
+
+The following table is to show the outlier that affected each program the most:
+ - The most affected program is qrp.py, the quality would reduce as the norm of outlier increases
+ - The least affected program is ncpca.py, as the data is normalized, outlier won't affect much here
+
+  program name  |  no outlier quality  |   outlier quality    |          x
+-------------------------------------------------------------------------------------
+    upca.py     |   9520.63366898787   |   9497.18929494373   |  ('15, -5, 14, 0')
+    cpca.py     |   9520.97116665220   |   9495.65533491751   |  ('1, -5, 9, -20')
+    ncpca.py    |   9520.63428083707   |   9518.30836728225   |  ('10, -3, 5, 20')
+    qrp.py      |   9511.17053184080   |   9103.29575925737   |  ('15, -15, -14, 14')
+    qrppca.py   |   9516.55257270695   |   9446.37187080702   |  ('20, -2, 11, -5')     (k = 10)
+    fkv.py      |   9220.73566017590   |   9266.70180546850   |  ('17, -8, 11, -3')     (seed = 777)
+    fkvpca.py   |   9430.24928057890   |   9385.34242082893   |  ('10, -7, 3, -15')     (k = 10, seed = 777)
+
+Inferences:
+ - Detecting outlier in any dataset would give useful insights on the process
+ - qrp.py would prioritize any value with higher norm,
+   therefore an outlier with a higher norm would easily dominate future predictions resulting in wrong results
+ - ncpca.py being able to normalize each samples,
+   so they are closer to each other and wouldn't drastically affect future predictions,
+   and it's quality is least affected by outlier
+
+
