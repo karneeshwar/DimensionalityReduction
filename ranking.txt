@@ -32,11 +32,11 @@ Parameters for qrppca.py:
 	- These 10 data points were used to do dimensionality reduction with 2 eigen vectors found by centered PCA
 
 Parameters for fkv.py:
-	- random seed was chosen to be 1000
+	- random seed was chosen to be 777
 	- 2 data points were selected at random with replacement with probability proportional to norm square of data points
 	- These 2 data points were orthonormalized and used for dimensionality reduction directly
 
 Parameters for fkvpca.py:
-	- random seed was chosen tobe 1000 and k was chosen to be 10
+	- random seed was chosen tobe 777 and k was chosen to be 10
 	- 10 data points were selected at random with replacement with probability proportional to norm square of data points
 	- These 10 data points were used to do dimensionality reduction with 2 eigen vectors found by centered PCA
