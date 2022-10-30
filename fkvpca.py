@@ -8,15 +8,25 @@ import random as rn
 
 
 # Function: centered_PCA, Principal Component Analysis with mean subtraction
-# Parameters: matrix = input training data, reduce_to = number of dimensions to reduce to (default = 2)
+# Parameters: matrix = input training data, prob = probability of columns, reduce_to = number of dimensions to reduce to (default = 2)
 #   To find the top 2 eigen vectors using PCA with mean subtraction to use for dimensionality reduction
-def centered_PCA(matrix, reduce_to=2):
-    # Compute average and subtract it from the input matrix
+def centered_PCA(matrix, prob, reduce_to=2):
+    # Compute average
     avg = numpython.mean(matrix, axis=1)
+
+    # Subtracting mean from input matrix
     matrix_avg = matrix - avg
 
+    # Compute weights
+    weights = []
+    for each_probability in range(len(prob)):
+        weights.append(1 / prob[each_probability])
+
     # Compute the symmetric matrix B for PCA
-    B_matrix = matrix_avg * matrix_avg.T
+    rows, columns = matrix.shape
+    B_matrix = numpython.asmatrix(numpython.zeros([rows, rows]))
+    for col in range(columns):
+        B_matrix += weights[col] * matrix_avg[:, col] * matrix_avg[:, col].T
 
     # Compute eigen values and vectors of the symmetric matrix B
     eigen_values, eigen_vectors = numpython.linalg.eigh(B_matrix)
@@ -30,39 +40,48 @@ def centered_PCA(matrix, reduce_to=2):
     reduced_eigen_vectors = eigen_vectors[:, :reduce_to]
 
     # return the reduced vectors
-    return reduced_eigen_vectors
+    return reduced_eigen_vectors, avg
 
 
 # Function: fkv, Randomized feature selection
 # Parameters: matrix = input training data, k = number of columns to select
 #   To find the top 2 vectors using FKV algorithm to use for dimensionality reduction
 def fkv(matrix, k):
-    # Create a vector that has the probability weights for each column of the input data
+    # Create a vector that has the probability for each column of the input data
     rows, columns = matrix.shape
-    weights = numpython.empty(columns)
+    prob = numpython.empty(columns)
     sum_norm_sq = 0
     for i in range(columns):
-        weights[i] = numpython.linalg.norm(matrix[:, i])**2
-        sum_norm_sq += weights[i]
-    weights /= sum_norm_sq
+        prob[i] = numpython.linalg.norm(matrix[:, i])**2
+        sum_norm_sq += prob[i]
+    prob /= sum_norm_sq
 
     # Randomly select the required number of columns
     reduced_vectors = numpython.asmatrix(numpython.empty([rows, k]))
-    selected_vectors = rn.choices(list(range(0, columns)), weights, k=k)
+    selected_vectors = rn.choices(list(range(0, columns)), prob, k=k)
     for each_column in range(len(selected_vectors)):
         for each_row in range(rows):
             reduced_vectors[each_row, each_column] = matrix[each_row, selected_vectors[each_column]]
 
-    # return the reduced vectors
-    return reduced_vectors
+    # Select the probability of selected columns to use later in PCA
+    prob_weights = []
+    for each_column in selected_vectors:
+        prob_weights.append(prob[each_column])
+
+    # return the reduced vectors and probability vector
+    return reduced_vectors, prob_weights
 
 
 # Function: reduce_data
 # Parameters: v = reduced vectors, matrix = input testing data
 #   To reduce the input testing_data using the top 2 selected vectors from the training_data
 def reduce_data(v, matrix):
+    # Compute average and subtract it from the input matrix
+    avg = numpython.mean(matrix, axis=1)
+    matrix_avg = matrix - avg
+
     # Return the reduced data
-    return v.T * matrix
+    return v.T * matrix_avg
 
 
 # Function: orthonormalize_vectors
@@ -87,18 +106,16 @@ def orthonormalize_vectors(v):
 
 
 # Function: approximation_quality
-# Parameters: v = Ortho-normalized vectors, k_matrix = matrix with k rows, matrix = input data
+# Parameters: v = Ortho-normalized vectors, matrix = input data
 #   To compute the approximation quality of the dimensionality reduction method
-def approximation_quality(v, k_matrix, matrix):
+def approximation_quality(v, matrix, avg_tilda):
     # Compute average and subtract it from the input matrix
-    avg_tilda = numpython.mean(k_matrix, axis=1)
     avg = numpython.mean(matrix, axis=1)
     matrix_avg = matrix - avg_tilda
     _, col = matrix.shape
 
     # Compute the quality and return
     B_matrix = matrix_avg * matrix_avg.T
-    # B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
     score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2 + 2*col*avg.T*avg_tilda - col*(numpython.linalg.norm(avg_tilda)**2)
@@ -114,7 +131,7 @@ if __name__ == '__main__':
         system.exit()
 
     # Set random seed from the input arguments
-    rn.seed(system.argv[5])
+    rn.seed(int(system.argv[5]))
 
     # Exception handling for input data file
     while 1:
@@ -126,22 +143,22 @@ if __name__ == '__main__':
             print('File not found')
 
     # Inserting an outlier into the training data
-    # outlier = numpython.matrix('-36356356356, 6363634, 46436, -8984508240582082')
+    # outlier = numpython.matrix('-3, 6, 4, -8')
     # training_data = numpython.vstack((training_data, outlier))
 
     random_iterations = 1
     while random_iterations > 0:
         # Call fkv function to retrieve top k columns for dimensionality reduction
-        k_data = fkv(training_data.T, int(system.argv[4]))
+        k_data, probability = fkv(training_data.T, int(system.argv[4]))
 
         # Call the required dimensionality reduction function
-        vectors = centered_PCA(k_data)
+        vectors, average_tilda = centered_PCA(k_data, probability)
+
+        # Call the function to compute the final reduced data
+        reduced_data = reduce_data(vectors, testing_data.T)
 
         # Call the function to ortho-normalize the vectors
         on_vectors = orthonormalize_vectors(vectors)
-
-        # Call the function to compute the final reduced data
-        reduced_data = reduce_data(on_vectors, testing_data.T)
 
         # Exception handling for output data file
         while 1:
@@ -152,6 +169,6 @@ if __name__ == '__main__':
                 print('File not written')
 
         # Call the function to find the quality of the algorithm
-        quality = approximation_quality(on_vectors, k_data, testing_data.T)
+        quality = approximation_quality(on_vectors, testing_data.T, average_tilda)
         print(quality.item())
         random_iterations -= 1

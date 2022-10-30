@@ -13,16 +13,16 @@ import random as rn
 def fkv(matrix, reduce_to=2):
     # Create a vector that has the probability weights for each column of the input data
     rows, columns = matrix.shape
-    weights = numpython.empty(columns)
+    probability = numpython.empty(columns)
     sum_norm_sq = 0
     for i in range(columns):
-        weights[i] = numpython.linalg.norm(matrix[:, i])**2
-        sum_norm_sq += weights[i]
-    weights /= sum_norm_sq
+        probability[i] = numpython.linalg.norm(matrix[:, i]) ** 2
+        sum_norm_sq += probability[i]
+    probability /= sum_norm_sq
 
     # Randomly select the required number of columns
     reduced_vectors = numpython.asmatrix(numpython.empty([rows, reduce_to]))
-    selected_vectors = rn.choices(list(range(0, columns)), weights, k=reduce_to)
+    selected_vectors = rn.choices(list(range(0, columns)), probability, k=reduce_to)
     for each_column in range(len(selected_vectors)):
         for each_row in range(rows):
             reduced_vectors[each_row, each_column] = matrix[each_row, selected_vectors[each_column]]
@@ -49,11 +49,11 @@ def orthonormalize_vectors(v):
     v2 = v[:, 1]
 
     # Ortho-normalize vector1
-    ortho_normV1 = v1/numpython.linalg.norm(v1)
+    ortho_normV1 = v1 / numpython.linalg.norm(v1)
 
     # Ortho-normalize vector2
-    tilda_V2 = v2 - ((ortho_normV1.T*v2).item())*ortho_normV1
-    ortho_normV2 = tilda_V2/numpython.linalg.norm(tilda_V2)
+    tilda_V2 = v2 - ((ortho_normV1.T * v2).item()) * ortho_normV1
+    ortho_normV2 = tilda_V2 / numpython.linalg.norm(tilda_V2)
 
     # Return the final vectors as a single np matrix
     ortho_normV = numpython.hstack((ortho_normV1, ortho_normV2))
@@ -69,7 +69,7 @@ def approximation_quality(v, matrix):
     # B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
-    score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2
+    score = v1.T * B_matrix * v1 + v2.T * B_matrix * v2
     return score
 
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         system.exit()
 
     # Set random seed from the input arguments
-    rn.seed(system.argv[4])
+    rn.seed(int(system.argv[4]))
 
     # Exception handling for input data file
     while 1:
@@ -94,7 +94,7 @@ if __name__ == '__main__':
             print('File not found')
 
     # Inserting an outlier into the training data
-    # outlier = numpython.matrix('-36356356356, 6363634, 46436, -8984508240582082')
+    # outlier = numpython.matrix('-3, 6, 4, -8')
     # training_data = numpython.vstack((training_data, outlier))
 
     random_iterations = 1
@@ -102,11 +102,11 @@ if __name__ == '__main__':
         # Call the required dimensionality reduction function
         vectors = fkv(training_data.T)
 
+        # Call the function to compute the final reduced data
+        reduced_data = reduce_data(vectors, testing_data.T)
+
         # Call the function to ortho-normalize the vectors
         on_vectors = orthonormalize_vectors(vectors)
-
-        # Call the function to compute the final reduced data
-        reduced_data = reduce_data(on_vectors, testing_data.T)
 
         # Exception handling for output data file
         while 1:

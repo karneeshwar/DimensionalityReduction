@@ -30,7 +30,7 @@ def centered_PCA(matrix, reduce_to=2):
     reduced_eigen_vectors = eigen_vectors[:, :reduce_to]
 
     # return the reduced vectors
-    return reduced_eigen_vectors
+    return reduced_eigen_vectors, avg
 
 
 # Function: pivoted_QR, Pivoted QR factorization
@@ -60,8 +60,12 @@ def pivoted_QR(matrix, k):
 # Parameters: v = reduced vectors, matrix = input testing data
 #   To reduce the input testing_data using the top 2 selected vectors from the training_data
 def reduce_data(v, matrix):
+    # Compute average and subtract it from the input matrix
+    avg = numpython.mean(matrix, axis=1)
+    matrix_avg = matrix - avg
+
     # Return the reduced data
-    return v.T * matrix
+    return v.T * matrix_avg
 
 
 # Function: orthonormalize_vectors
@@ -86,18 +90,16 @@ def orthonormalize_vectors(v):
 
 
 # Function: approximation_quality
-# Parameters: v = Ortho-normalized vectors, k_matrix = matrix with k rows, matrix = input data
+# Parameters: v = Ortho-normalized vectors, matrix = input data, avg_tilda = training data mean for k
 #   To compute the approximation quality of the dimensionality reduction method
-def approximation_quality(v, k_matrix, matrix):
+def approximation_quality(v, matrix, avg_tilda):
     # Compute average and subtract it from the input matrix
-    avg_tilda = numpython.mean(k_matrix, axis=1)
     avg = numpython.mean(matrix, axis=1)
     matrix_avg = matrix - avg_tilda
     _, col = matrix.shape
 
     # Compute the quality and return
     B_matrix = matrix_avg * matrix_avg.T
-    # B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
     score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2 + 2*col*avg.T*avg_tilda - col*(numpython.linalg.norm(avg_tilda)**2)
@@ -122,7 +124,7 @@ if __name__ == '__main__':
             print('File not found')
 
     # Inserting an outlier into the training data
-    # outlier = numpython.matrix('-36356356356, 6363634, 46436, -8984508240582082')
+    # outlier = numpython.matrix('-3, 6, 4, -8')
     # training_data = numpython.vstack((training_data, outlier))
 
     # If the value of k is more than training data rows prompt user to rerun program with correct value and exit
@@ -135,13 +137,13 @@ if __name__ == '__main__':
     k_data = pivoted_QR(training_data.T, int(system.argv[4]))
 
     # Call the required dimensionality reduction function
-    vectors = centered_PCA(k_data)
+    vectors, average_tilda = centered_PCA(k_data)
+
+    # Call the function to compute the final reduced data
+    reduced_data = reduce_data(vectors, testing_data.T)
 
     # Call the function to ortho-normalize the vectors
     on_vectors = orthonormalize_vectors(vectors)
-
-    # Call the function to compute the final reduced data
-    reduced_data = reduce_data(on_vectors, testing_data.T)
 
     # Exception handling for output data file
     while 1:
@@ -152,5 +154,5 @@ if __name__ == '__main__':
             print('File not written')
 
     # Call the function to find the quality of the algorithm
-    quality = approximation_quality(on_vectors, k_data, testing_data.T)
+    quality = approximation_quality(on_vectors, testing_data.T, average_tilda)
     print(quality.item())

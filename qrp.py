@@ -65,7 +65,6 @@ def orthonormalize_vectors(v):
 def approximation_quality(v, matrix):
     # Compute the quality and return
     B_matrix = matrix * matrix.T
-    # B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
     score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2
@@ -90,17 +89,17 @@ if __name__ == '__main__':
             print('File not found')
 
     # Inserting an outlier into the training data
-    # outlier = numpython.matrix('-36356356356, 6363634, 46436, -8984508240582082')
+    # outlier = numpython.matrix('-3, 6, 4, -8')
     # training_data = numpython.vstack((training_data, outlier))
 
     # Call the required dimensionality reduction function
     vectors = pivoted_QR(training_data.T)
 
+    # Call the function to compute the final reduced data
+    reduced_data = reduce_data(vectors, testing_data.T)
+
     # Call the function to ortho-normalize the vectors
     on_vectors = orthonormalize_vectors(vectors)
-
-    # Call the function to compute the final reduced data
-    reduced_data = reduce_data(on_vectors, testing_data.T)
 
     # Exception handling for output data file
     while 1:

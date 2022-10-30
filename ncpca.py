@@ -12,18 +12,19 @@ def norm_centered_PCA(matrix, reduce_to=2):
     # Compute average
     avg = numpython.mean(matrix, axis=1)
 
-    # Computing the normalization factor
-    W = []
-    rows, columns = matrix.shape
-    for i in range(rows):
-        W.append(1 / numpython.linalg.norm(matrix[i] - avg[i])**2)
-    W_matrix = numpython.diag(W)
-
     # Subtracting mean from input matrix
     matrix_avg = matrix - avg
 
+    # Computing the normalization factor
+    weights = []
+    rows, columns = matrix.shape
+    for col in range(columns):
+        weights.append(1 / numpython.linalg.norm(matrix_avg[:, col]) ** 2)
+
     # Compute the symmetric matrix B for normalized PCA
-    B_matrix = W_matrix * matrix_avg * matrix_avg.T
+    B_matrix = numpython.asmatrix(numpython.zeros([rows, rows]))
+    for col in range(columns):
+        B_matrix += weights[col] * matrix_avg[:, col] * matrix_avg[:, col].T
 
     # Compute eigen values and vectors of the symmetric matrix B
     eigen_values, eigen_vectors = numpython.linalg.eigh(B_matrix)
@@ -84,7 +85,6 @@ def approximation_quality(v, matrix):
 
     # Compute the quality and return
     B_matrix = matrix_avg * matrix_avg.T
-    # B_matrix = B_matrix/(numpython.linalg.norm(B_matrix)**2)
     v1 = v[:, 0]
     v2 = v[:, 1]
     score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2 + col*(numpython.linalg.norm(avg)**2)
@@ -109,17 +109,17 @@ if __name__ == '__main__':
             print('File not found')
 
     # Inserting an outlier into the training data
-    # outlier = numpython.matrix('-36356356356, 6363634, 46436, -8984508240582082')
+    # outlier = numpython.matrix('-3, 6, 4, -8')
     # training_data = numpython.vstack((training_data, outlier))
 
     # Call the required dimensionality reduction function
     vectors = norm_centered_PCA(training_data.T)
 
+    # Call the function to compute the final reduced data
+    reduced_data = reduce_data(vectors, testing_data.T)
+
     # Call the function to ortho-normalize the vectors
     on_vectors = orthonormalize_vectors(vectors)
-
-    # Call the function to compute the final reduced data
-    reduced_data = reduce_data(on_vectors, testing_data.T)
 
     # Exception handling for output data file
     while 1:
