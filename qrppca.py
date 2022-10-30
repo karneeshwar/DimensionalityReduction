@@ -1,8 +1,10 @@
 # import statements:
 #   sys for defining and retrieving program arguments
 #   numpy to import and perform matrix operations with given data
+#   scipy to perform QRP calculation
 import sys as system
 import numpy as numpython
+from scipy import linalg
 
 
 # Function: centered_PCA, Principal Component Analysis with mean subtraction
@@ -28,7 +30,30 @@ def centered_PCA(matrix, reduce_to=2):
     reduced_eigen_vectors = eigen_vectors[:, :reduce_to]
 
     # return the reduced vectors
-    return reduced_eigen_vectors
+    return reduced_eigen_vectors, avg
+
+
+# Function: pivoted_QR, Pivoted QR factorization
+# Parameters: matrix = input training data, k = number of columns to select
+#   To find the top k vectors using QR factorization to use for dimensionality reduction
+def pivoted_QR(matrix, k):
+    # Compute Q,R and P of the input matrix
+    _, _, priority_vector = linalg.qr(matrix, pivoting=True)
+
+    # Reduce the priority_vector to the length of value of 'reduce_to'
+    priority_vector = priority_vector[0:k]
+
+    # Create an empty matrix to hold the selected vectors
+    rows, columns = matrix.shape
+    reduced_vectors = numpython.asmatrix(numpython.empty([rows, k]))
+
+    # Copy the prioritized columns from the input matrix to the new empty matrix we created
+    for each_column in range(len(priority_vector)):
+        for each_row in range(rows):
+            reduced_vectors[each_row, each_column] = matrix[each_row, priority_vector[each_column]]
+
+    # return the reduced vectors
+    return reduced_vectors
 
 
 # Function: reduce_data
@@ -39,7 +64,7 @@ def reduce_data(v, matrix):
     avg = numpython.mean(matrix, axis=1)
     matrix_avg = matrix - avg
 
-    # return the reduced data
+    # Return the reduced data
     return v.T * matrix_avg
 
 
@@ -65,19 +90,19 @@ def orthonormalize_vectors(v):
 
 
 # Function: approximation_quality
-# Parameters: v = Ortho-normalized vectors, matrix = testing data
+# Parameters: v = Ortho-normalized vectors, matrix = input data, avg_tilda = training data mean for k
 #   To compute the approximation quality of the dimensionality reduction method
-def approximation_quality(v, matrix):
+def approximation_quality(v, matrix, avg_tilda):
     # Compute average and subtract it from the input matrix
     avg = numpython.mean(matrix, axis=1)
-    matrix_avg = matrix - avg
+    matrix_avg = matrix - avg_tilda
     _, col = matrix.shape
 
     # Compute the quality and return
     B_matrix = matrix_avg * matrix_avg.T
     v1 = v[:, 0]
     v2 = v[:, 1]
-    score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2 + col*(numpython.linalg.norm(avg)**2)
+    score = v1.T*B_matrix*v1 + v2.T*B_matrix*v2 + 2*col*avg.T*avg_tilda - col*(numpython.linalg.norm(avg_tilda)**2)
     return score
 
 
@@ -85,7 +110,7 @@ def approximation_quality(v, matrix):
 #   checks for arguments, imports data and calls necessary functions for dimensionality reduction
 if __name__ == '__main__':
     # If the number of arguments are incorrect prompt user to rerun program and exit
-    if len(system.argv) != 4:
+    if len(system.argv) != 5:
         print('Incorrect arguments, rerun the program with correct number of arguments!')
         system.exit()
 
@@ -102,8 +127,17 @@ if __name__ == '__main__':
     # outlier = numpython.matrix('-3, 6, 4, -8')
     # training_data = numpython.vstack((training_data, outlier))
 
+    # If the value of k is more than training data rows prompt user to rerun program with correct value and exit
+    input_rows, input_columns = training_data.shape
+    if int(system.argv[4]) > input_rows:
+        print('Incorrect value for k, rerun with correct value, should be less than', input_rows)
+        system.exit()
+
+    # Call pivoted_Qr function to retrieve top k columns for dimensionality reduction
+    k_data = pivoted_QR(training_data.T, int(system.argv[4]))
+
     # Call the required dimensionality reduction function
-    vectors = centered_PCA(training_data.T)
+    vectors, average_tilda = centered_PCA(k_data)
 
     # Call the function to compute the final reduced data
     reduced_data = reduce_data(vectors, testing_data.T)
@@ -120,5 +154,5 @@ if __name__ == '__main__':
             print('File not written')
 
     # Call the function to find the quality of the algorithm
-    quality = approximation_quality(on_vectors, testing_data.T)
+    quality = approximation_quality(on_vectors, testing_data.T, average_tilda)
     print(quality.item())

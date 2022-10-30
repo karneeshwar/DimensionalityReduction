@@ -1,0 +1,42 @@
+Ranking based on iris.csv
+
+  rank  |      file      |      quality
+--------------------------------------------
+   1    |     cpca.py    |  9520.97116665220
+   2    |     ncpca.py   |  9520.63428083707
+   3    |     upca.py    |  9520.63366898787
+   4    |     qrppca.py  |  9516.55257270695 (k = 10)
+   5    |     qrp.py     |  9511.17053184080
+   6    |     fkvpca.py  |  9430.24928057890 (k = 10, seed = 777)
+   7    |     fkv.py     |	9220.73566017590 (seed = 777)
+
+
+
+Ranking based on wine.csv
+
+  rank  |      file      |      quality
+----------------------------------------------
+   1    |     cpca.py    |  118765063.88356847
+   2    |     ncpca.py   |  118764802.72437865
+   3    |     qrppca.py  |  118764675.99784061 (k = 10)
+   4    |     fkvpca.py  |  118763210.2545641  (k = 10, seed = 777)
+   5    |     upca.py    |  118763185.14935538
+   6    |     qrp.py     |  118749488.55519482
+   7    |     fkv.py     |  118716246.06919177 (seed = 777)
+
+
+
+Parameters for qrppca.py:
+	- k was chosen to be 10
+	- 10 data points were selected from the input using QRP
+	- These 10 data points were used to do dimensionality reduction with 2 eigen vectors found by centered PCA
+
+Parameters for fkv.py:
+	- random seed was chosen to be 777
+	- 2 data points were selected at random with replacement with probability proportional to norm square of data points
+	- These 2 data points were orthonormalized and used for dimensionality reduction directly
+
+Parameters for fkvpca.py:
+	- random seed was chosen tobe 777 and k was chosen to be 10
+	- 10 data points were selected at random with replacement with probability proportional to norm square of data points
+	- These 10 data points were used to do dimensionality reduction with 2 eigen vectors found by centered PCA
