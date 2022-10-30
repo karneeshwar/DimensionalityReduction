@@ -8,7 +8,7 @@ Ranking based on iris.csv
    4    |     qrppca.py  |  9516.55257270695 (k = 10)
    5    |     qrp.py     |  9511.17053184080
    6    |     fkvpca.py  |  9430.24928057890 (k = 10, seed = 777)
-   7    |     fkv.py     |	9220.73566017590 (seed = 777)
+   7    |     fkv.py     |  9220.73566017590 (seed = 777)
 
 
 
