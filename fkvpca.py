@@ -39,7 +39,7 @@ def centered_PCA(matrix, prob, reduce_to=2):
     # Find the top 2 eigen vectors
     reduced_eigen_vectors = eigen_vectors[:, :reduce_to]
 
-    # return the reduced vectors
+    # return the reduced vectors and approximate mean from training set
     return reduced_eigen_vectors, avg
 
 
@@ -73,12 +73,11 @@ def fkv(matrix, k):
 
 
 # Function: reduce_data
-# Parameters: v = reduced vectors, matrix = input testing data
+# Parameters: v = reduced vectors, matrix = input testing data, avg_tilda = approximate mean from training
 #   To reduce the input testing_data using the top 2 selected vectors from the training_data
-def reduce_data(v, matrix):
+def reduce_data(v, matrix, avg_tilda):
     # Compute average and subtract it from the input matrix
-    avg = numpython.mean(matrix, axis=1)
-    matrix_avg = matrix - avg
+    matrix_avg = matrix - avg_tilda
 
     # Return the reduced data
     return v.T * matrix_avg
@@ -106,7 +105,7 @@ def orthonormalize_vectors(v):
 
 
 # Function: approximation_quality
-# Parameters: v = Ortho-normalized vectors, matrix = input data
+# Parameters: v = Ortho-normalized vectors, matrix = input data, avg_tilda = approximate mean from training
 #   To compute the approximation quality of the dimensionality reduction method
 def approximation_quality(v, matrix, avg_tilda):
     # Compute average and subtract it from the input matrix
@@ -159,7 +158,7 @@ if __name__ == '__main__':
             vectors, average_tilda = centered_PCA(k_data, probability)
 
             # Call the function to compute the final reduced data
-            reduced_data = reduce_data(vectors, testing_data.T)
+            reduced_data = reduce_data(vectors, testing_data.T, average_tilda)
 
             # Call the function to ortho-normalize the vectors
             on_vectors = orthonormalize_vectors(vectors)
