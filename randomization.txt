@@ -23,12 +23,12 @@ random seed = 777
   90  | 9519.249527607444 | 9520.434219915629 | 9520.84721325185
   100 | 9519.179237726546 | 9520.372120804039 | 9520.803098538092
 
-qrp vs fkv:
- - When using 777 as random seed in fkv.py, it took 10 random runs to get a quality better than qrp.py
- - On average, the quality of fkv.py is less which suggests that randomly selecting samples is way less accurate
- - In qrp.py, the data is selected directly based on the norm of each sample which prioritizes important samples without randomness
- - The same scenario can be seen when these algorithms are coupled with PCA, qrppca.py gives better quality than fkvpca.py
- - fkvpca.py gives comparable results only when the value of k is considerably high
- - k being high to get better quality in fkvpca.py is almost equivalent to working with full actual data
- - Therefore, our experiments suggests that qrp is better than fkv
+QRP vs FKV:
+ - When using 777 as random seed in fkv.py, it took 10 random runs to get a quality better than qrp.py and the occurance is 1 or 2 in 20 runs.
+ - On average, the quality of fkv.py is less which suggests that randomly selecting a sample from whole data is way less accurate.
+ - In qrp.py, the data is selected directly based on the norm of each sample which prioritizes important samples without randomness.
+ - But for a large data computing QRP would take a large amount of time which is not desirable.
+ - Therefore, introducing the factor k and incorporating PCA in both QRP and FKV would reduce the time and also increase the quality.
+ - When we compare qrppca.py and fkvpca.py, fkvpca.py needs a k value >= 20 to have an average quality higher than qrppca.py with k = 10.
+ - Therefore, if k is considerably less qrppca.py is preferred, and if k is high fkvpca.py is preferred.
 
